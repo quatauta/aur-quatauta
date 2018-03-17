@@ -1,0 +1,43 @@
+# Maintainer: Daniel Schömer <daniel.schoemer@gmx.net>
+_mypkgname="signify"
+pkgname="$_mypkgname-mail"
+pkgver="1.14"
+pkgrel="1"
+epoch=
+pkgdesc="Automatic, semi-random '.signature' rotator/generator"
+arch=("any")
+url="http://signify.sourceforge.net/"
+license=("custom:signify")
+groups=()
+depends=("perl")
+makedepends=("perl")
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=("signify")
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("$pkgname-$pkgver.tar.gz::http://http.debian.net/debian/pool/main/s/$_mypkgname/${_mypkgname}_${pkgver}.orig.tar.gz")
+noextract=()
+sha256sums=('16646811623e244c98fb245e7a855dee9a22f4188f614c7e4d6ad5d0bd5b6fed')
+validpgpkeys=()
+
+prepare() {
+	cd "$_mypkgname-$pkgver"
+        sed -i -e 's|\(MANDIR = $(PREFIX)\)/man|\1/share/man|g' Makefile
+        sed -i -e 's/$(\(MAN1\|BIN\)DIR)/$(DESTDIR)\0/g' Makefile
+}
+
+check() {
+	cd "$_mypkgname-$pkgver"
+	make -k perlcheck
+}
+
+package() {
+	cd "$_mypkgname-$pkgver"
+	install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+	make DESTDIR="$pkgdir/" PREFIX="/usr" install
+}
