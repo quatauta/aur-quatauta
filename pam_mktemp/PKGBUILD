@@ -1,0 +1,49 @@
+# Maintainer: Daniel Schömer <daniel.schoemer@gmx.net>
+pkgname="pam_mktemp"
+pkgver="1.1.1"
+pkgrel="1"
+epoch=
+pkgdesc="Create per-user private temporary directories during login"
+arch=("x86_64")
+url="http://www.openwall.com/pam/"
+license=("custom")
+groups=()
+depends=("pam")
+makedepends=("")
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=("")
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("http://www.openwall.com/pam/modules/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+        "pam_mktemp-1.1.1-e2fsprogs-libs.patch")
+noextract=()
+sha256sums=('66cf80c18439ca3456db96402f2eeac14b1a0503cc1d1be7f2b16d5f079f3f3d'
+            'a271e66a96c758d752eb185dfc03d6367ca5dfaf8735b0bbb6dd178beeaafaac')
+validpgpkeys=()
+
+prepare() {
+	cd "${pkgname}-${pkgver}"
+	echo "${srcdir}"/*.patch | xargs -n1 patch -p1 -i
+}
+
+check() {
+	cd "${pkgname}-${pkgver}"
+	# make -k check
+}
+
+build() {
+	cd "${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}/"
+	make
+}
+
+package() {
+	cd "${pkgname}-${pkgver}"
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	make DESTDIR="${pkgdir}/" SECUREDIR="/usr/lib/security" install
+}
