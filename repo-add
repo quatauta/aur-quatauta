@@ -1,0 +1,7 @@
+#!/bin/sh
+
+REPO_NAME="quatauta"
+
+find -iname "*.pkg.tar.xz" |
+sort -V |
+xargs repo-add -d -R -s "${REPO_NAME}.db.tar.gz"
