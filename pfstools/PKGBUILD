@@ -28,7 +28,7 @@ options=(!libtool)
 source=(http://downloads.sourceforge.net/pfstools/$pkgname-$pkgver.tgz \
         opencv3.patch)
 md5sums=('c3148ed11e562c30a0fd65d114cf2de2'
-         '8bb92632fc2d8887a5f4aa03f6ee6636')
+         '4a184574d32d05dea3d493be807fdde4')
 
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"
