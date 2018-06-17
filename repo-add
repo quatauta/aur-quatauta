@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'awesome_print'
 require 'rubygems'
-require 'set'
 
 class Package
   include Comparable
