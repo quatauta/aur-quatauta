@@ -1,0 +1,3 @@
+[submodule "arch-linux-rolling"]
+	path = arch-linux-rolling
+	url = https://github.com/versusvoid/arch-linux-rolling
