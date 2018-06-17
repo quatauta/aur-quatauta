@@ -1,7 +1,82 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 
-REPO_NAME="quatauta"
+require 'awesome_print'
+require 'rubygems'
+require 'set'
 
-find -iname "*.pkg.tar.xz" |
-sort -V |
-xargs repo-add -d -R -s "${REPO_NAME}.db.tar.gz"
+class Package
+  include Comparable
+
+  NAME_REGEX          = /(?<name>.*)-(?<version>[0-9].*)-(?<generation>[0-9].*)-(?<architecture>[^.]*)/
+  PACKAGE_EXTENSION   = ".pkg.tar.xz"
+  SIGNATURE_EXTENSION = ".sig"
+
+  attr_reader :filename, :signature, :name, :version, :generation, :architecture
+
+  def initialize(filename)
+    match = NAME_REGEX.match(File.basename(filename, PACKAGE_EXTENSION))
+    @filename     = filename
+    @signature    = filename + SIGNATURE_EXTENSION
+    @name         = match[:name]
+    @version      = Gem::Version.new(match[:version])
+    @generation   = Gem::Version.new(match[:generation])
+    @architecture = match[:architecture]
+  end
+
+  def <=>(other)
+    (name <=> other.name).nonzero? ||
+      (version <=> other.version) ||
+      (generation <=> other.generation) ||
+      (architecture <=> other.architecture)
+  end
+
+  def to_s
+    [name, version, generation, architecture].join("-")
+  end
+
+  def inspect
+    to_s
+  end
+end
+
+class Repository
+  REPOSITORY_EXTENSION = ".db.tar.gz"
+
+  attr_reader :name, :directory
+
+  def initialize(name, directory)
+    @name      = name
+    @directory = directory
+  end
+
+  def packages
+    Dir[File.join(directory, "**", "*#{Package::PACKAGE_EXTENSION}")]
+      .select { |f| File.file?(f) && !File.symlink?(f) }
+      .map    { |f| Package.new(f) }
+      .select { |p| File.file?(p.signature) }
+      .sort
+  end
+
+  def write
+    repo_dir  = File.join(directory, "repo")
+    repo_file = File.join(repo_dir, "#{name}#{REPOSITORY_EXTENSION}")
+
+    Dir.mkdir(repo_dir) unless Dir.exist? repo_dir
+
+    packages.each do |pkg|
+      symlink = File.join(repo_dir, File.basename(pkg.filename))
+
+      File.symlink(File.absolute_path(pkg.filename), symlink) unless File.symlink? symlink
+    end
+
+    system("repo-add", "-d", "-s", repo_file, *packages.map { |p| p.filename })
+  end
+end
+
+if __FILE__ == $0
+  directory  = File.dirname(__FILE__)
+  name       = File.basename(File.realpath(directory)).sub(/^aur-/i, "")
+  repository = Repository.new(name, directory)
+
+  repository.write
+end
