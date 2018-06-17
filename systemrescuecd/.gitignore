@@ -1,0 +1,5 @@
+pkg
+src
+*.iso
+*.tar.xz
+*.tar.xz.sig
