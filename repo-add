@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
+require 'fileutils'
 require 'rubygems'
 
 class Package
@@ -59,15 +61,16 @@ class Repository
     repo_dir  = File.join(directory, "repo")
     repo_file = File.join(repo_dir, "#{name}#{REPOSITORY_EXTENSION}")
 
-    Dir.mkdir(repo_dir) unless Dir.exist? repo_dir
+    FileUtils.mkdir_p(repo_dir)
 
     packages.each do |pkg|
-      symlink = File.join(repo_dir, File.basename(pkg.filename))
-
-      File.symlink(File.absolute_path(pkg.filename), symlink) unless File.symlink? symlink
+      FileUtils.mv(pkg.filename, repo_dir)  unless File.exist?(File.join(repo_dir, File.basename(pkg.filename)))
+      FileUtils.mv(pkg.signature, repo_dir) unless File.exist?(File.join(repo_dir, File.basename(pkg.signature)))
     end
 
-    system("repo-add", "-d", "-s", repo_file, *packages.map { |p| p.filename })
+    system("repo-add", "-d", "-n", "-R", "-s", repo_file, *packages.map { |pkg|
+      File.join(repo_dir, File.basename(pkg.filename))
+    })
   end
 end
 
