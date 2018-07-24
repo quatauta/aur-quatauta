@@ -1,0 +1,41 @@
+# Maintainer: Daniel Schömer <daniel.schoemer@gmx.net>
+pkgname=root-tail
+pkgver=1.2
+pkgrel=1
+epoch=
+pkgdesc="Automatic, semi-random '.signature' rotator/generator"
+arch=("x86_64")
+url="http://oldhome.schmorp.de/marc/root-tail.html"
+license=("GPL")
+groups=()
+depends=("libxext")
+makedepends=("imake")
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("$pkgname-$pkgver.tar.gz::http://oldhome.schmorp.de/marc/data/${pkgname}-${pkgver}.tar.gz")
+noextract=()
+md5sums=('5a4b3c4c7ab3bed1f4575e9688aac5de')
+validpgpkeys=()
+
+prepare() {
+    cd "$pkgname-$pkgver"
+    xmkmf -a
+}
+
+build() {
+    cd "$pkgname-$pkgver"
+    make DESTDIR="$pkgdir/"
+}
+
+package() {
+    cd "$pkgname-$pkgver"
+    make DESTDIR="$pkgdir/" install
+    make DESTDIR="$pkgdir/" install.man
+}
