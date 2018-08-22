@@ -68,7 +68,7 @@ class Repository
       FileUtils.mv(pkg.signature, repo_dir) unless File.exist?(File.join(repo_dir, File.basename(pkg.signature)))
     end
 
-    system("repo-add", "-d", "-n", "-R", "-s", repo_file, *packages.map { |pkg|
+    system("repo-add", "-n", "-R", "-s", repo_file, *packages.map { |pkg|
       File.join(repo_dir, File.basename(pkg.filename))
     })
   end
