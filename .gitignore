@@ -1,3 +1,4 @@
+*.deb
 *.exe
 *.jar
 *.log
