@@ -8,7 +8,7 @@ class Package
   include Comparable
 
   NAME_REGEX          = /(?<name>.*)-(?<version>[0-9].*)-(?<generation>[0-9].*)-(?<architecture>[^.]*)/
-  PACKAGE_EXTENSION   = ".pkg.tar.xz"
+  PACKAGE_EXTENSION   = ".pkg.tar.zst"
   SIGNATURE_EXTENSION = ".sig"
 
   attr_reader :filename, :signature, :name, :version, :generation, :architecture
