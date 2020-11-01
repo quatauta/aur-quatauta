@@ -1,0 +1,29 @@
+#!/bin/sh -e
+
+echo "System Rescue" >&2
+
+. /usr/share/grub/grub-mkconfig_lib
+
+if [ -r /etc/default/systemrescue ] ; then
+  . /etc/default/systemrescue
+fi
+
+ls /boot/systemrescue/systemrescue*.iso --sort=version 2>/dev/null |
+tail -n1 |
+while read ISO ; do
+    device=$(${grub_probe} --target=device "${ISO}")
+    device_label=$(${grub_probe} --target=fs_label "${ISO}")
+    path=$(make_system_path_relative_to_its_root "${ISO}")
+    grub_string=$(prepare_grub_to_access_device "${device}" | grub_add_tab | grub_add_tab)
+    cat << EOF
+menuentry "System Rescue" --class rescue {
+${grub_string}
+    set isofile=${path}
+    loopback loop \${isofile}
+    echo   'Loading System Rescue kernel ...'
+    linux  (loop)/sysresc/boot/x86_64/vmlinuz img_label=${device_label} img_loop=${path} archisobasedir=sysresc ${CUSTOM_BOOTOPTIONS}
+    echo   'Loading System Rescue initramfs ...'
+    initrd (loop)/sysresc/boot/x86_64/sysresc.img
+}
+EOF
+done
